@@ -2,68 +2,63 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vijay Dairy Agent Panel</title>
+<title>Agent Registration</title>
 <style>
-body{font-family:Arial;padding:20px;background:#f2f2f2}
+body{font-family:Arial;padding:20px}
 input,select,button{width:100%;padding:8px;margin:5px 0}
 button{background:green;color:white;border:none}
-.box{background:white;padding:15px;border-radius:10px}
 </style>
 </head>
 <body>
 
 <h2>Agent Registration</h2>
 
-<div class="box">
-<input id="userType" placeholder="Retailer / Agent">
-<input id="lapu" placeholder="LAPU (10 Digit)">
-<input id="contact" placeholder="Contact (10 Digit)">
+<select id="userType">
+<option>Retailer</option>
+<option>Agent</option>
+</select>
+
+<input id="lapu" placeholder="LAPU 10 Digit">
+<input id="contact" placeholder="Contact 10 Digit">
 <input id="shopName" placeholder="Shop Name">
 <input id="owner" placeholder="Owner Name">
+
 <select id="zone">
 <option>Sarairanjan</option>
 <option>Patory</option>
 </select>
+
 <select id="remarks">
 <option>High Volume</option>
 <option>Medium</option>
 <option>Low</option>
 </select>
-<button onclick="createAgent()">Create Agent</button>
-</div>
 
-<hr>
-
-<h2>Agent Login</h2>
-
-<div class="box">
-<input id="loginCode" placeholder="Agent Code">
-<input id="loginLapu" placeholder="LAPU">
-<button onclick="login()">Login</button>
-</div>
+<button onclick="submitForm()">Submit</button>
 
 <script>
 
-const scriptURL = "YOUR_SCRIPT_URL";
+const scriptURL = "https://script.google.com/macros/s/AKfycbwBLEQkleE8CUjnIg3VA7JRiScMuLFLTWkBnSAFeW37O2j4pGXmCDsSFpeLFVxuhYttXA/exec";
+
+let lat="", lon="", address="", area="";
 
 navigator.geolocation.getCurrentPosition(async function(pos){
-window.lat = pos.coords.latitude;
-window.lon = pos.coords.longitude;
+lat = pos.coords.latitude;
+lon = pos.coords.longitude;
 
 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
 const data = await res.json();
 
-window.address = data.display_name;
-window.area = data.address.suburb || data.address.village || "";
+address = data.display_name;
+area = data.address.suburb || data.address.village || "";
 });
 
-async function createAgent(){
+async function submitForm(){
 
 let response = await fetch(scriptURL,{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-action:"createAgent",
 userType:document.getElementById("userType").value,
 lapu:document.getElementById("lapu").value,
 contact:document.getElementById("contact").value,
@@ -78,36 +73,15 @@ remarks:document.getElementById("remarks").value
 })
 });
 
-let result = await response.json();
+let result = await response.text();
 
-if(result.status=="success"){
-alert("Agent Created\nAgent Code: "+result.agentCode);
+if(result.startsWith("Success")){
+let code = result.split("|")[1];
+alert("Agent Created\nAgent Code: "+code);
 }else{
-alert(result.message);
+alert(result);
 }
 }
-
-async function login(){
-
-let response = await fetch(scriptURL,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-action:"login",
-agentCode:document.getElementById("loginCode").value,
-lapu:document.getElementById("loginLapu").value
-})
-});
-
-let result = await response.json();
-
-if(result.status=="success"){
-alert("Login Success");
-}else{
-alert(result.message);
-}
-}
-
 </script>
 </body>
 </html>
