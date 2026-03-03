@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vijay Dairy Agent Panel</title>
+<style>
+body{font-family:Arial;padding:20px;background:#f2f2f2}
+input,select,button{width:100%;padding:8px;margin:5px 0}
+button{background:green;color:white;border:none}
+.box{background:white;padding:15px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<h2>Agent Registration</h2>
+
+<div class="box">
+<input id="userType" placeholder="Retailer / Agent">
+<input id="lapu" placeholder="LAPU (10 Digit)">
+<input id="contact" placeholder="Contact (10 Digit)">
+<input id="shopName" placeholder="Shop Name">
+<input id="owner" placeholder="Owner Name">
+<select id="zone">
+<option>Sarairanjan</option>
+<option>Patory</option>
+</select>
+<select id="remarks">
+<option>High Volume</option>
+<option>Medium</option>
+<option>Low</option>
+</select>
+<button onclick="createAgent()">Create Agent</button>
+</div>
+
+<hr>
+
+<h2>Agent Login</h2>
+
+<div class="box">
+<input id="loginCode" placeholder="Agent Code">
+<input id="loginLapu" placeholder="LAPU">
+<button onclick="login()">Login</button>
+</div>
+
+<script>
+
+const scriptURL = "YOUR_SCRIPT_URL";
+
+navigator.geolocation.getCurrentPosition(async function(pos){
+window.lat = pos.coords.latitude;
+window.lon = pos.coords.longitude;
+
+const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+const data = await res.json();
+
+window.address = data.display_name;
+window.area = data.address.suburb || data.address.village || "";
+});
+
+async function createAgent(){
+
+let response = await fetch(scriptURL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+action:"createAgent",
+userType:document.getElementById("userType").value,
+lapu:document.getElementById("lapu").value,
+contact:document.getElementById("contact").value,
+shopName:document.getElementById("shopName").value,
+owner:document.getElementById("owner").value,
+latitude:lat,
+longitude:lon,
+address:address,
+area:area,
+zone:document.getElementById("zone").value,
+remarks:document.getElementById("remarks").value
+})
+});
+
+let result = await response.json();
+
+if(result.status=="success"){
+alert("Agent Created\nAgent Code: "+result.agentCode);
+}else{
+alert(result.message);
+}
+}
+
+async function login(){
+
+let response = await fetch(scriptURL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+action:"login",
+agentCode:document.getElementById("loginCode").value,
+lapu:document.getElementById("loginLapu").value
+})
+});
+
+let result = await response.json();
+
+if(result.status=="success"){
+alert("Login Success");
+}else{
+alert(result.message);
+}
+}
+
+</script>
+</body>
+</html>
