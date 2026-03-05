@@ -1,150 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <style>
-    .airtek-bg { background: linear-gradient(135deg, #1e293b 0%, #dc2626 100%); }
-    .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airtek Digital Onboarding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="bg-gray-900 p-5 text-gray-100">
+    <div class="max-w-xl mx-auto bg-gray-800 p-8 rounded-3xl shadow-2xl border-b-4 border-red-600">
+        <h2 class="text-3xl font-black text-center mb-6 text-red-500">AIRTEK DIGITAL</h2>
+        
+        <form id="agentForm" class="space-y-4">
+            <input type="number" id="lapu" placeholder="LAPU Number" class="w-full p-3 rounded bg-gray-700 outline-none focus:ring-2 focus:ring-red-500" required>
+            <input type="text" id="shopName" placeholder="Shop Name" class="w-full p-3 rounded bg-gray-700 outline-none" required>
+            
+            <div class="p-4 bg-gray-700 rounded-xl text-center">
+                <p id="gpsText" class="text-xs mb-2">📍 Location not verified</p>
+                <button type="button" onclick="getLocation()" class="bg-blue-600 px-4 py-2 rounded-full text-sm font-bold">Verify Location</button>
+            </div>
 
-  <div id="loginPage" class="flex items-center justify-center min-h-screen p-4 animate__animated animate__fadeIn">
-    <div class="glass p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-red-600">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-black text-gray-900 tracking-tighter">AIRTEK</h1>
-        <p class="text-gray-500 font-medium">Agent Login Portal</p>
-      </div>
-      
-      <div class="space-y-4">
-        <input type="number" id="l_lapu" placeholder="Enter LAPU" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all">
-        <input type="password" id="l_con" placeholder="Enter Contact" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all">
-        <button onclick="doLogin()" id="l_btn" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-red-700 shadow-lg transform active:scale-95 transition">LOGIN</button>
-      </div>
+            <input type="hidden" id="lat"> <input type="hidden" id="lng">
+            <input type="hidden" id="address"> <input type="hidden" id="area">
 
-      <div class="mt-8 text-center">
-        <p class="text-gray-600">Naye Agent ho? 
-          <a href="#" onclick="showReg()" class="text-red-600 font-bold hover:underline">Yahan Register Karein</a>
-        </p>
-      </div>
+            <button type="submit" id="subBtn" class="w-full bg-red-600 p-4 rounded-xl font-bold text-xl hover:bg-red-700 transition">SAVE TO SHEET</button>
+        </form>
     </div>
-  </div>
 
-  <div id="regPage" class="hidden min-h-screen p-4 md:p-10 animate__animated animate__fadeInRight">
-    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
-      <div class="airtek-bg p-8 text-white flex justify-between items-center">
-        <div>
-          <h2 class="text-2xl font-bold">Agent Onboarding</h2>
-          <p class="text-red-100 text-sm">Please fill all details accurately</p>
-        </div>
-        <button onclick="showLogin()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm">Back to Login</button>
-      </div>
-      
-      <form id="agentForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-1">
-          <label class="text-xs font-bold text-gray-500 uppercase">User Type</label>
-          <select name="userType" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none">
-            <option value="Retailer">Retailer</option>
-            <option value="Agent">Agent</option>
-          </select>
-        </div>
-        <div class="space-y-1">
-          <label class="text-xs font-bold text-gray-500 uppercase">LAPU (10 Digits)</label>
-          <input type="number" name="lapu" placeholder="9876xxxxxx" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
-        </div>
-        <div class="space-y-1">
-          <label class="text-xs font-bold text-gray-500 uppercase">Contact Number</label>
-          <input type="number" name="contact" placeholder="Contact number" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
-        </div>
-        <div class="space-y-1">
-          <label class="text-xs font-bold text-gray-500 uppercase">Shop Name</label>
-          <input type="text" name="shopName" placeholder="Airtek Digital" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
-        </div>
-        <div class="space-y-1 md:col-span-2">
-          <label class="text-xs font-bold text-gray-500 uppercase">Owner Name</label>
-          <input type="text" name="owner" placeholder="Full Name" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
-        </div>
-        <div class="space-y-1">
-          <label class="text-xs font-bold text-gray-500 uppercase">Zone</label>
-          <select name="zone" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none">
-            <option value="Sariranjan">Sariranjan</option>
-            <option value="Patory">Patory</option>
-          </select>
-        </div>
-        <div class="space-y-1">
-          <label class="text-xs font-bold text-gray-500 uppercase">Remarks</label>
-          <select name="remarks" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none">
-            <option value="High Volume">High Volume</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-        </div>
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxho6A5HBshQCO_qkeAH6Cy4_Kcn0cxSaqgeflsryPAIzSW3snOZ1RAd9obHzGVy05gJw/exec"; // ⚠️ Paste your URL here
 
-        <input type="hidden" name="lat" id="lat"><input type="hidden" name="lng" id="lng">
-
-        <div class="md:col-span-2 pt-6">
-          <button type="button" onclick="submitData()" id="subBtn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition transform active:scale-95">REGISTER & GENERATE AGENT CODE</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // Navigation Functions
-    function showReg() { 
-      document.getElementById('loginPage').classList.add('hidden');
-      document.getElementById('regPage').classList.remove('hidden');
-    }
-    function showLogin() {
-      document.getElementById('regPage').classList.add('hidden');
-      document.getElementById('loginPage').classList.remove('hidden');
-    }
-
-    // GPS Fetch
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(p => {
-        document.getElementById('lat').value = p.coords.latitude;
-        document.getElementById('lng').value = p.coords.longitude;
-      });
-    }
-
-    // Login Logic
-    function doLogin() {
-      let lapu = document.getElementById('l_lapu').value;
-      let con = document.getElementById('l_con').value;
-      let btn = document.getElementById('l_btn');
-      if(!lapu || !con) { alert("Details bhariye!"); return; }
-      
-      btn.innerText = "Authenticating...";
-      google.script.run.withSuccessHandler(res => {
-        if(res.status === "success") {
-          alert("Swagat hai, " + res.name + "!");
-          // Yahan aap dashboard par bhej sakte hain
-        } else {
-          alert("Login fail: LAPU/Contact sahi nahi hai!");
-          btn.innerText = "LOGIN";
+        async function getLocation() {
+            document.getElementById('gpsText').innerText = "🛰️ Fetching GPS...";
+            navigator.geolocation.getCurrentPosition(async (p) => {
+                document.getElementById('lat').value = p.coords.latitude;
+                document.getElementById('lng').value = p.coords.longitude;
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`);
+                    const d = await res.json();
+                    document.getElementById('address').value = d.display_name;
+                    document.getElementById('area').value = d.address.suburb || d.address.village || "Local";
+                    document.getElementById('gpsText').innerText = "✅ Location Verified!";
+                } catch(e) { document.getElementById('gpsText').innerText = "✅ GPS OK"; }
+            });
         }
-      }).checkLogin(lapu, con);
-    }
 
-    // Submit Logic
-    function submitData() {
-      const form = document.getElementById('agentForm');
-      const btn = document.getElementById('subBtn');
-      btn.disabled = true;
-      btn.innerText = "Generating Unique ID...";
+        document.getElementById('agentForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('subBtn');
+            btn.innerText = "Processing..."; btn.disabled = true;
 
-      google.script.run.withSuccessHandler(msg => {
-        alert(msg); // Isme success message aur Agent Code aayega
-        btn.disabled = false;
-        btn.innerText = "REGISTER & GENERATE AGENT CODE";
-        if(msg.includes("Success")) {
-           form.reset();
-           showLogin();
-        }
-      }).processForm(Object.fromEntries(new FormData(form)));
-    }
-  </script>
+            const payload = {
+                lapu: document.getElementById('lapu').value,
+                shopName: document.getElementById('shopName').value,
+                lat: document.getElementById('lat').value,
+                lng: document.getElementById('lng').value,
+                address: document.getElementById('address').value,
+                area: document.getElementById('area').value,
+                userType: "Retailer" // Default
+            };
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // ⚠️ Ye important hai CORS ke liye
+                    cache: 'no-cache',
+                    body: JSON.stringify(payload)
+                });
+                alert("Data Sent! Check Sheet after 2 seconds.");
+                document.getElementById('agentForm').reset();
+            } catch (err) {
+                alert("Error: " + err);
+            } finally {
+                btn.innerText = "SAVE TO SHEET"; btn.disabled = false;
+            }
+        };
+    </script>
 </body>
 </html>
