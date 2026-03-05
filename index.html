@@ -1,49 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f0f2f5; padding-top: 20px; font-family: sans-serif; }
+        .form-container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        .btn-submit { background-color: #28a745; color: white; font-weight: bold; border: none; transition: 0.3s; }
+        .btn-submit:hover { background-color: #218838; }
+        .loading-spinner { display: none; margin-top: 10px; color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container">
+        <h2 class="text-center mb-4" style="color: #007bff;">Survey Data Entry</h2>
+        <form id="surveyForm" onsubmit="handleFormSubmit(this)">
+            
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>User Type</label>
+                    <select name="userType" id="userType" class="form-control" required>
+                        <option value="Retailer">Retailer</option>
+                        <option value="Agent">Agent</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>LAPU (10 Digits)</label>
+                    <input type="number" name="lapu" id="lapu" class="form-control" required min="1000000000" max="9999999999">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Contact Number</label>
+                    <input type="number" name="contact" class="form-control" required min="1000000000" max="9999999999">
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Shop Name</label>
+                    <input type="text" name="shopName" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Owner Name</label>
+                <input type="text" name="owner" class="form-control" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Latitude</label>
+                    <input type="text" id="lat" name="lat" class="form-control" readonly>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Longitude</label>
+                    <input type="text" id="long" name="long" class="form-control" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Address (Auto-fetch / Editable)</label>
+                <input type="text" id="address" name="address" class="form-control" placeholder="Wait for GPS...">
+            </div>
+
+            <div class="form-group">
+                <label>Area (Auto-fetch / Editable)</label>
+                <input type="text" id="area" name="area" class="form-control">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Zone</label>
+                    <select name="zone" class="form-control" required>
+                        <option value="Sarairanjan">Sarairanjan</option>
+                        <option value="Patory">Patory</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Remarks</label>
+                    <select name="remarks" class="form-control" required>
+                        <option value="High Volume">High Volume</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-submit btn-block p-2" id="btnTxt">Submit Data</button>
+            <div id="loader" class="loading-spinner text-center">Data save ho raha hai, wait karo...</div>
+        </form>
+    </div>
+</div>
+
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxho6A5HBshQCO_qkeAH6Cy4_Kcn0cxSaqgeflsryPAIzSW3snOZ1RAd9obHzGVy05gJw/exec"; // ⚠️ Paste URL here
-
-  document.getElementById('airtekForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    
-    // Check GPS
-    if(!document.getElementById('lat').value) {
-      alert("Bhai pehle GPS fetch karo!");
-      return;
-    }
-
-    btn.innerText = "SAVING...";
-    btn.disabled = true;
-
-    const payload = {
-      owner: document.getElementById('owner').value,
-      lapu: document.getElementById('lapu').value,
-      contact: document.getElementById('contact').value,
-      shopName: document.getElementById('shopName').value,
-      userType: document.getElementById('userType').value,
-      zone: document.getElementById('zone').value,
-      lat: document.getElementById('lat').value,
-      lng: document.getElementById('lng').value,
-      address: document.getElementById('addr').value,
-      area: document.getElementById('area').value
+    // GPS fetch karne ka function
+    window.onload = function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('lat').value = position.coords.latitude;
+                document.getElementById('long').value = position.coords.longitude;
+                // Reverse Geocoding ke bina sirf coordinates hi automatic aayenge
+                document.getElementById('address').value = "Lat: " + position.coords.latitude;
+                document.getElementById('area').value = "Locality Check";
+            }, function(error) {
+                alert("GPS Permission Denied. Please enable location.");
+            });
+        }
     };
 
-    try {
-      // Sending data
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(payload)
-      });
-
-      // Show Success Message
-      const id = "E" + payload.lapu.slice(-4) + Math.floor(Math.random()*10);
-      alert("✅ Data Sent!\nAgent ID: " + id);
-      location.reload();
-
-    } catch (err) {
-      alert("Error: " + err);
-      btn.innerText = "SAVE TO SHEET";
-      btn.disabled = false;
+    function handleFormSubmit(formObject) {
+        event.preventDefault();
+        document.getElementById('btnTxt').disabled = true;
+        document.getElementById('loader').style.display = "block";
+        
+        google.script.run.withSuccessHandler(function(response) {
+            alert(response);
+            document.getElementById("surveyForm").reset();
+            document.getElementById('btnTxt').disabled = false;
+            document.getElementById('loader').style.display = "none";
+        }).processForm(formObject);
     }
-  };
 </script>
+
+</body>
+</html>
