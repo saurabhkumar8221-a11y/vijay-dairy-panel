@@ -2,83 +2,106 @@
 <html>
 <head>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <style>
-    .airtek-bg { background: linear-gradient(135deg, #0f172a 0%, #b91c1c 100%); }
+    .airtek-bg { background: linear-gradient(135deg, #1e293b 0%, #dc2626 100%); }
+    .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen font-sans">
 
-  <div id="loginPage" class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-4 border-red-600">
-      <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">AIRTEK</h1>
-      <p class="text-center text-gray-500 mb-6">Agent Login Portal</p>
-      <input type="number" id="l_lapu" placeholder="Enter LAPU" class="w-full p-3 border rounded-lg mb-4 outline-none focus:ring-2 focus:ring-red-500">
-      <input type="password" id="l_con" placeholder="Enter Contact" class="w-full p-3 border rounded-lg mb-6 outline-none focus:ring-2 focus:ring-red-500">
-      <button onclick="doLogin()" id="l_btn" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">LOGIN</button>
+  <div id="loginPage" class="flex items-center justify-center min-h-screen p-4 animate__animated animate__fadeIn">
+    <div class="glass p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-red-600">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-black text-gray-900 tracking-tighter">AIRTEK</h1>
+        <p class="text-gray-500 font-medium">Agent Login Portal</p>
+      </div>
+      
+      <div class="space-y-4">
+        <input type="number" id="l_lapu" placeholder="Enter LAPU" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all">
+        <input type="password" id="l_con" placeholder="Enter Contact" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 transition-all">
+        <button onclick="doLogin()" id="l_btn" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-red-700 shadow-lg transform active:scale-95 transition">LOGIN</button>
+      </div>
+
+      <div class="mt-8 text-center">
+        <p class="text-gray-600">Naye Agent ho? 
+          <a href="#" onclick="showReg()" class="text-red-600 font-bold hover:underline">Yahan Register Karein</a>
+        </p>
+      </div>
     </div>
   </div>
 
-  <div id="regPage" class="hidden p-4 md:p-10">
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-      <div class="airtek-bg p-6 text-white flex justify-between items-center">
-        <h2 class="text-xl font-bold">New Agent Onboarding</h2>
-        <span id="welcomeMsg" class="text-sm"></span>
+  <div id="regPage" class="hidden min-h-screen p-4 md:p-10 animate__animated animate__fadeInRight">
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div class="airtek-bg p-8 text-white flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold">Agent Onboarding</h2>
+          <p class="text-red-100 text-sm">Please fill all details accurately</p>
+        </div>
+        <button onclick="showLogin()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm">Back to Login</button>
       </div>
       
       <form id="agentForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">User Type *</label>
-          <select name="userType" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-500 uppercase">User Type</label>
+          <select name="userType" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none">
             <option value="Retailer">Retailer</option>
             <option value="Agent">Agent</option>
           </select>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">LAPU (10 Digit) *</label>
-          <input type="number" name="lapu" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-500 uppercase">LAPU (10 Digits)</label>
+          <input type="number" name="lapu" placeholder="9876xxxxxx" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">Contact Number *</label>
-          <input type="number" name="contact" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-500 uppercase">Contact Number</label>
+          <input type="number" name="contact" placeholder="Contact number" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">Shop Name *</label>
-          <input type="text" name="shopName" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-500 uppercase">Shop Name</label>
+          <input type="text" name="shopName" placeholder="Airtek Digital" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">Owner Name *</label>
-          <input type="text" name="owner" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        <div class="space-y-1 md:col-span-2">
+          <label class="text-xs font-bold text-gray-500 uppercase">Owner Name</label>
+          <input type="text" name="owner" placeholder="Full Name" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none" required>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">Zone *</label>
-          <select name="zone" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500">
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-500 uppercase">Zone</label>
+          <select name="zone" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none">
             <option value="Sariranjan">Sariranjan</option>
             <option value="Patory">Patory</option>
           </select>
         </div>
-        <div>
-          <label class="block text-sm font-semibold text-gray-600">Remarks *</label>
-          <select name="remarks" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500">
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-500 uppercase">Remarks</label>
+          <select name="remarks" class="w-full p-3 border-b-2 border-gray-200 focus:border-red-500 outline-none">
             <option value="High Volume">High Volume</option>
             <option value="Medium">Medium</option>
             <option value="Low">Low</option>
           </select>
         </div>
 
-        <input type="hidden" name="lat" id="lat">
-        <input type="hidden" name="lng" id="lng">
-        <input type="hidden" name="address" value="Auto-Fetched">
-        <input type="hidden" name="area" value="Auto-Fetched">
+        <input type="hidden" name="lat" id="lat"><input type="hidden" name="lng" id="lng">
 
-        <div class="md:col-span-2 mt-4">
-          <button type="button" onclick="submitData()" id="subBtn" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-800 transition">SUBMIT & GENERATE ID</button>
+        <div class="md:col-span-2 pt-6">
+          <button type="button" onclick="submitData()" id="subBtn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition transform active:scale-95">REGISTER & GENERATE AGENT CODE</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // Fetch Location immediately
+    // Navigation Functions
+    function showReg() { 
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('regPage').classList.remove('hidden');
+    }
+    function showLogin() {
+      document.getElementById('regPage').classList.add('hidden');
+      document.getElementById('loginPage').classList.remove('hidden');
+    }
+
+    // GPS Fetch
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(p => {
         document.getElementById('lat').value = p.coords.latitude;
@@ -86,35 +109,40 @@
       });
     }
 
+    // Login Logic
     function doLogin() {
       let lapu = document.getElementById('l_lapu').value;
       let con = document.getElementById('l_con').value;
       let btn = document.getElementById('l_btn');
-      btn.innerText = "Checking...";
+      if(!lapu || !con) { alert("Details bhariye!"); return; }
       
+      btn.innerText = "Authenticating...";
       google.script.run.withSuccessHandler(res => {
         if(res.status === "success") {
-          document.getElementById('loginPage').classList.add('hidden');
-          document.getElementById('regPage').classList.remove('hidden');
-          document.getElementById('welcomeMsg').innerText = "User: " + res.name;
+          alert("Swagat hai, " + res.name + "!");
+          // Yahan aap dashboard par bhej sakte hain
         } else {
-          alert("Galti: " + res.message);
+          alert("Login fail: LAPU/Contact sahi nahi hai!");
           btn.innerText = "LOGIN";
         }
       }).checkLogin(lapu, con);
     }
 
+    // Submit Logic
     function submitData() {
       const form = document.getElementById('agentForm');
       const btn = document.getElementById('subBtn');
       btn.disabled = true;
-      btn.innerText = "Saving Data...";
+      btn.innerText = "Generating Unique ID...";
 
       google.script.run.withSuccessHandler(msg => {
-        alert(msg);
+        alert(msg); // Isme success message aur Agent Code aayega
         btn.disabled = false;
-        btn.innerText = "SUBMIT & GENERATE ID";
-        if(msg.includes("Success")) form.reset();
+        btn.innerText = "REGISTER & GENERATE AGENT CODE";
+        if(msg.includes("Success")) {
+           form.reset();
+           showLogin();
+        }
       }).processForm(Object.fromEntries(new FormData(form)));
     }
   </script>
