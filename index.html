@@ -1,78 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Airtek Digital Onboarding</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 p-5 text-gray-100">
-    <div class="max-w-xl mx-auto bg-gray-800 p-8 rounded-3xl shadow-2xl border-b-4 border-red-600">
-        <h2 class="text-3xl font-black text-center mb-6 text-red-500">AIRTEK DIGITAL</h2>
+<body class="bg-[#0f172a] text-white font-sans p-5">
+    <div class="max-w-2xl mx-auto bg-[#1e293b] p-8 rounded-3xl shadow-2xl border-t-4 border-red-600">
+        <h2 class="text-3xl font-black text-center text-red-500 mb-8 uppercase tracking-widest">Airtek Digital</h2>
         
-        <form id="agentForm" class="space-y-4">
-            <input type="number" id="lapu" placeholder="LAPU Number" class="w-full p-3 rounded bg-gray-700 outline-none focus:ring-2 focus:ring-red-500" required>
-            <input type="text" id="shopName" placeholder="Shop Name" class="w-full p-3 rounded bg-gray-700 outline-none" required>
+        <form id="mainForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input type="text" id="owner" placeholder="Owner Name" class="bg-[#334155] p-3 rounded-xl outline-none" required>
+            <input type="number" id="lapu" placeholder="LAPU Number" class="bg-[#334155] p-3 rounded-xl outline-none" required>
+            <input type="number" id="contact" placeholder="Contact Number" class="bg-[#334155] p-3 rounded-xl outline-none" required>
+            <input type="text" id="shopName" placeholder="Shop Name" class="bg-[#334155] p-3 rounded-xl outline-none" required>
             
-            <div class="p-4 bg-gray-700 rounded-xl text-center">
-                <p id="gpsText" class="text-xs mb-2">📍 Location not verified</p>
-                <button type="button" onclick="getLocation()" class="bg-blue-600 px-4 py-2 rounded-full text-sm font-bold">Verify Location</button>
+            <select id="userType" class="bg-[#334155] p-3 rounded-xl outline-none">
+                <option value="Retailer">Retailer</option>
+                <option value="Agent">Agent</option>
+            </select>
+
+            <select id="zone" class="bg-[#334155] p-3 rounded-xl outline-none">
+                <option value="Sariranjan">Sariranjan</option>
+                <option value="Patory">Patory</option>
+            </select>
+
+            <div class="md:col-span-2 bg-slate-800/50 p-4 rounded-2xl border border-slate-700 text-center">
+                <p id="status" class="text-xs text-blue-400 mb-3 font-mono">📍 Location Pending</p>
+                <button type="button" onclick="getGPS()" class="bg-blue-600 px-6 py-2 rounded-full text-xs font-bold hover:bg-blue-700">VERIFY LOCATION</button>
             </div>
 
             <input type="hidden" id="lat"> <input type="hidden" id="lng">
-            <input type="hidden" id="address"> <input type="hidden" id="area">
+            <input type="hidden" id="addr"> <input type="hidden" id="area">
 
-            <button type="submit" id="subBtn" class="w-full bg-red-600 p-4 rounded-xl font-bold text-xl hover:bg-red-700 transition">SAVE TO SHEET</button>
+            <button type="submit" id="btn" class="md:col-span-2 bg-red-600 p-4 rounded-2xl font-black text-xl hover:bg-red-700 transition transform active:scale-95 shadow-lg shadow-red-900/20">SAVE TO SHEET</button>
         </form>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxho6A5HBshQCO_qkeAH6Cy4_Kcn0cxSaqgeflsryPAIzSW3snOZ1RAd9obHzGVy05gJw/exec"; // ⚠️ Paste your URL here
+        const API_URL = "TERA_DEPLOY_URL_YAHAN_DAAL"; // ⚠️ Paste URL here
 
-        async function getLocation() {
-            document.getElementById('gpsText').innerText = "🛰️ Fetching GPS...";
+        async function getGPS() {
+            document.getElementById('status').innerText = "🛰️ satellite linking...";
             navigator.geolocation.getCurrentPosition(async (p) => {
                 document.getElementById('lat').value = p.coords.latitude;
                 document.getElementById('lng').value = p.coords.longitude;
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`);
                     const d = await res.json();
-                    document.getElementById('address').value = d.display_name;
+                    document.getElementById('addr').value = d.display_name;
                     document.getElementById('area').value = d.address.suburb || d.address.village || "Local";
-                    document.getElementById('gpsText').innerText = "✅ Location Verified!";
-                } catch(e) { document.getElementById('gpsText').innerText = "✅ GPS OK"; }
+                    document.getElementById('status').innerText = "✅ Location Verified: " + document.getElementById('area').value;
+                } catch(e) { document.getElementById('status').innerText = "✅ GPS Captured"; }
             });
         }
 
-        document.getElementById('agentForm').onsubmit = async (e) => {
+        document.getElementById('mainForm').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('subBtn');
-            btn.innerText = "Processing..."; btn.disabled = true;
+            const btn = document.getElementById('btn');
+            if(!document.getElementById('lat').value) return alert("Pehle GPS verify kar lo!");
+            
+            btn.innerText = "UPDATING SHEET..."; btn.disabled = true;
 
-            const payload = {
+            const body = {
+                owner: document.getElementById('owner').value,
                 lapu: document.getElementById('lapu').value,
+                contact: document.getElementById('contact').value,
                 shopName: document.getElementById('shopName').value,
+                userType: document.getElementById('userType').value,
+                zone: document.getElementById('zone').value,
                 lat: document.getElementById('lat').value,
                 lng: document.getElementById('lng').value,
-                address: document.getElementById('address').value,
+                address: document.getElementById('addr').value,
                 area: document.getElementById('area').value,
-                userType: "Retailer" // Default
+                remarks: "New Registration"
             };
 
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // ⚠️ Ye important hai CORS ke liye
-                    cache: 'no-cache',
-                    body: JSON.stringify(payload)
-                });
-                alert("Data Sent! Check Sheet after 2 seconds.");
-                document.getElementById('agentForm').reset();
-            } catch (err) {
-                alert("Error: " + err);
-            } finally {
-                btn.innerText = "SAVE TO SHEET"; btn.disabled = false;
-            }
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(body) });
+            alert("Data Sent! Check Sheet.");
+            location.reload();
         };
     </script>
 </body>
