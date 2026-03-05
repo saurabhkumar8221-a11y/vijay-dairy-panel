@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0f172a] text-white font-sans p-5">
+<body class="bg-[#0f172a] text-white p-5">
     <div class="max-w-2xl mx-auto bg-[#1e293b] p-8 rounded-3xl shadow-2xl border-t-4 border-red-600">
-        <h2 class="text-3xl font-black text-center text-red-500 mb-8 uppercase tracking-widest">Airtek Digital</h2>
+        <h2 class="text-3xl font-black text-center text-red-600 mb-8 tracking-tighter uppercase">Airtek Registration</h2>
         
-        <form id="mainForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <input type="text" id="owner" placeholder="Owner Name" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            <input type="number" id="lapu" placeholder="LAPU Number" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            <input type="number" id="contact" placeholder="Contact Number" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            <input type="text" id="shopName" placeholder="Shop Name" class="bg-[#334155] p-3 rounded-xl outline-none" required>
+        <form id="airtekForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input type="text" id="owner" placeholder="Owner Name" class="bg-[#334155] p-3 rounded-xl outline-none focus:ring-2 focus:ring-red-500" required>
+            <input type="number" id="lapu" placeholder="LAPU Number" class="bg-[#334155] p-3 rounded-xl outline-none focus:ring-2 focus:ring-red-500" required>
+            <input type="number" id="contact" placeholder="Contact Number" class="bg-[#334155] p-3 rounded-xl outline-none focus:ring-2 focus:ring-red-500" required>
+            <input type="text" id="shopName" placeholder="Shop Name" class="bg-[#334155] p-3 rounded-xl outline-none focus:ring-2 focus:ring-red-500" required>
             
             <select id="userType" class="bg-[#334155] p-3 rounded-xl outline-none">
                 <option value="Retailer">Retailer</option>
@@ -23,44 +23,44 @@
                 <option value="Patory">Patory</option>
             </select>
 
-            <div class="md:col-span-2 bg-slate-800/50 p-4 rounded-2xl border border-slate-700 text-center">
-                <p id="status" class="text-xs text-blue-400 mb-3 font-mono">📍 Location Pending</p>
-                <button type="button" onclick="getGPS()" class="bg-blue-600 px-6 py-2 rounded-full text-xs font-bold hover:bg-blue-700">VERIFY LOCATION</button>
+            <div class="md:col-span-2 bg-slate-800 p-4 rounded-2xl text-center border border-slate-700">
+                <p id="gpsLabel" class="text-xs text-blue-400 mb-2 font-mono italic">📍 Verify Visit Location</p>
+                <button type="button" onclick="getGPS()" class="bg-blue-600 px-6 py-2 rounded-full text-xs font-bold hover:bg-blue-700">GET LIVE GPS</button>
             </div>
 
             <input type="hidden" id="lat"> <input type="hidden" id="lng">
             <input type="hidden" id="addr"> <input type="hidden" id="area">
 
-            <button type="submit" id="btn" class="md:col-span-2 bg-red-600 p-4 rounded-2xl font-black text-xl hover:bg-red-700 transition transform active:scale-95 shadow-lg shadow-red-900/20">SAVE TO SHEET</button>
+            <button type="submit" id="submitBtn" class="md:col-span-2 bg-red-600 p-4 rounded-2xl font-black text-xl hover:bg-red-700 transition active:scale-95 shadow-lg shadow-red-900/50">SAVE TO SHEET</button>
         </form>
     </div>
 
     <script>
-        const API_URL = "TERA_DEPLOY_URL_YAHAN_DAAL"; // ⚠️ Paste URL here
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxho6A5HBshQCO_qkeAH6Cy4_Kcn0cxSaqgeflsryPAIzSW3snOZ1RAd9obHzGVy05gJw/exec"; // ⚠️ Apna naya URL yahan paste kar
 
         async function getGPS() {
-            document.getElementById('status').innerText = "🛰️ satellite linking...";
+            document.getElementById('gpsLabel').innerText = "🛰️ Connecting to Satellite...";
             navigator.geolocation.getCurrentPosition(async (p) => {
-                document.getElementById('lat').value = p.coords.latitude;
-                document.getElementById('lng').value = p.coords.longitude;
+                const lat = p.coords.latitude; const lng = p.coords.longitude;
+                document.getElementById('lat').value = lat; document.getElementById('lng').value = lng;
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}`);
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
                     const d = await res.json();
                     document.getElementById('addr').value = d.display_name;
-                    document.getElementById('area').value = d.address.suburb || d.address.village || "Local";
-                    document.getElementById('status').innerText = "✅ Location Verified: " + document.getElementById('area').value;
-                } catch(e) { document.getElementById('status').innerText = "✅ GPS Captured"; }
+                    document.getElementById('area').value = d.address.suburb || d.address.village || "Local Area";
+                    document.getElementById('gpsLabel').innerText = "✅ Location Verified: " + (d.address.suburb || "Captured");
+                } catch(e) { document.getElementById('gpsLabel').innerText = "✅ GPS Fixed (Offline Mode)"; }
             });
         }
 
-        document.getElementById('mainForm').onsubmit = async (e) => {
+        document.getElementById('airtekForm').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btn');
-            if(!document.getElementById('lat').value) return alert("Pehle GPS verify kar lo!");
+            const btn = document.getElementById('submitBtn');
+            if(!document.getElementById('lat').value) return alert("Bhai, pehle GPS verify kar lo!");
             
-            btn.innerText = "UPDATING SHEET..."; btn.disabled = true;
+            btn.innerText = "SENDING DATA..."; btn.disabled = true;
 
-            const body = {
+            const payload = {
                 owner: document.getElementById('owner').value,
                 lapu: document.getElementById('lapu').value,
                 contact: document.getElementById('contact').value,
@@ -71,11 +71,12 @@
                 lng: document.getElementById('lng').value,
                 address: document.getElementById('addr').value,
                 area: document.getElementById('area').value,
-                remarks: "New Registration"
+                remarks: "New Entry"
             };
 
-            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(body) });
-            alert("Data Sent! Check Sheet.");
+            // CORS fix ke liye no-cors mode
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Data Sent Successfully! Check your sheet.");
             location.reload();
         };
     </script>
