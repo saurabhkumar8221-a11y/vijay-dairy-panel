@@ -1,87 +1,122 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent Registration</title>
-<style>
-body{font-family:Arial;padding:20px}
-input,select,button{width:100%;padding:8px;margin:5px 0}
-button{background:green;color:white;border:none}
-</style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .airtek-bg { background: linear-gradient(135deg, #0f172a 0%, #b91c1c 100%); }
+  </style>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
 
-<h2>Agent Registration</h2>
+  <div id="loginPage" class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-4 border-red-600">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">AIRTEK</h1>
+      <p class="text-center text-gray-500 mb-6">Agent Login Portal</p>
+      <input type="number" id="l_lapu" placeholder="Enter LAPU" class="w-full p-3 border rounded-lg mb-4 outline-none focus:ring-2 focus:ring-red-500">
+      <input type="password" id="l_con" placeholder="Enter Contact" class="w-full p-3 border rounded-lg mb-6 outline-none focus:ring-2 focus:ring-red-500">
+      <button onclick="doLogin()" id="l_btn" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">LOGIN</button>
+    </div>
+  </div>
 
-<select id="userType">
-<option>Retailer</option>
-<option>Agent</option>
-</select>
+  <div id="regPage" class="hidden p-4 md:p-10">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="airtek-bg p-6 text-white flex justify-between items-center">
+        <h2 class="text-xl font-bold">New Agent Onboarding</h2>
+        <span id="welcomeMsg" class="text-sm"></span>
+      </div>
+      
+      <form id="agentForm" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">User Type *</label>
+          <select name="userType" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+            <option value="Retailer">Retailer</option>
+            <option value="Agent">Agent</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">LAPU (10 Digit) *</label>
+          <input type="number" name="lapu" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">Contact Number *</label>
+          <input type="number" name="contact" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">Shop Name *</label>
+          <input type="text" name="shopName" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">Owner Name *</label>
+          <input type="text" name="owner" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500" required>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">Zone *</label>
+          <select name="zone" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500">
+            <option value="Sariranjan">Sariranjan</option>
+            <option value="Patory">Patory</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600">Remarks *</label>
+          <select name="remarks" class="w-full p-2 border-b-2 border-gray-300 outline-none focus:border-red-500">
+            <option value="High Volume">High Volume</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
 
-<input id="lapu" placeholder="LAPU 10 Digit">
-<input id="contact" placeholder="Contact 10 Digit">
-<input id="shopName" placeholder="Shop Name">
-<input id="owner" placeholder="Owner Name">
+        <input type="hidden" name="lat" id="lat">
+        <input type="hidden" name="lng" id="lng">
+        <input type="hidden" name="address" value="Auto-Fetched">
+        <input type="hidden" name="area" value="Auto-Fetched">
 
-<select id="zone">
-<option>Sarairanjan</option>
-<option>Patory</option>
-</select>
+        <div class="md:col-span-2 mt-4">
+          <button type="button" onclick="submitData()" id="subBtn" class="w-full bg-blue-700 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-800 transition">SUBMIT & GENERATE ID</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-<select id="remarks">
-<option>High Volume</option>
-<option>Medium</option>
-<option>Low</option>
-</select>
+  <script>
+    // Fetch Location immediately
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(p => {
+        document.getElementById('lat').value = p.coords.latitude;
+        document.getElementById('lng').value = p.coords.longitude;
+      });
+    }
 
-<button onclick="submitForm()">Submit</button>
+    function doLogin() {
+      let lapu = document.getElementById('l_lapu').value;
+      let con = document.getElementById('l_con').value;
+      let btn = document.getElementById('l_btn');
+      btn.innerText = "Checking...";
+      
+      google.script.run.withSuccessHandler(res => {
+        if(res.status === "success") {
+          document.getElementById('loginPage').classList.add('hidden');
+          document.getElementById('regPage').classList.remove('hidden');
+          document.getElementById('welcomeMsg').innerText = "User: " + res.name;
+        } else {
+          alert("Galti: " + res.message);
+          btn.innerText = "LOGIN";
+        }
+      }).checkLogin(lapu, con);
+    }
 
-<script>
+    function submitData() {
+      const form = document.getElementById('agentForm');
+      const btn = document.getElementById('subBtn');
+      btn.disabled = true;
+      btn.innerText = "Saving Data...";
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbwBLEQkleE8CUjnIg3VA7JRiScMuLFLTWkBnSAFeW37O2j4pGXmCDsSFpeLFVxuhYttXA/exec";
-
-let lat="", lon="", address="", area="";
-
-navigator.geolocation.getCurrentPosition(async function(pos){
-lat = pos.coords.latitude;
-lon = pos.coords.longitude;
-
-const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-const data = await res.json();
-
-address = data.display_name;
-area = data.address.suburb || data.address.village || "";
-});
-
-async function submitForm(){
-
-let response = await fetch(scriptURL,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-userType:document.getElementById("userType").value,
-lapu:document.getElementById("lapu").value,
-contact:document.getElementById("contact").value,
-shopName:document.getElementById("shopName").value,
-owner:document.getElementById("owner").value,
-latitude:lat,
-longitude:lon,
-address:address,
-area:area,
-zone:document.getElementById("zone").value,
-remarks:document.getElementById("remarks").value
-})
-});
-
-let result = await response.text();
-
-if(result.startsWith("Success")){
-let code = result.split("|")[1];
-alert("Agent Created\nAgent Code: "+code);
-}else{
-alert(result);
-}
-}
-</script>
+      google.script.run.withSuccessHandler(msg => {
+        alert(msg);
+        btn.disabled = false;
+        btn.innerText = "SUBMIT & GENERATE ID";
+        if(msg.includes("Success")) form.reset();
+      }).processForm(Object.fromEntries(new FormData(form)));
+    }
+  </script>
 </body>
 </html>
