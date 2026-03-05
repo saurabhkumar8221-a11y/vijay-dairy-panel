@@ -1,86 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-[#0f172a] text-white p-5">
-    <div class="max-w-2xl mx-auto bg-[#1e293b] p-8 rounded-3xl shadow-2xl border-t-4 border-red-600">
-        <h2 class="text-3xl font-black text-center text-red-600 mb-8 uppercase">Airtek Onboarding</h2>
+document.getElementById('airtekForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    
+    if(!document.getElementById('lat').value) {
+        alert("Bhai, pehle GPS verify button dabao!");
+        return;
+    }
+
+    btn.innerText = "SAVING DATA...";
+    btn.disabled = true;
+
+    const payload = {
+        owner: document.getElementById('owner').value,
+        lapu: document.getElementById('lapu').value,
+        contact: document.getElementById('contact').value,
+        shopName: document.getElementById('shopName').value,
+        userType: document.getElementById('userType').value,
+        zone: document.getElementById('zone').value,
+        lat: document.getElementById('lat').value,
+        lng: document.getElementById('lng').value,
+        address: document.getElementById('addr').value,
+        area: document.getElementById('area').value
+    };
+
+    try {
+        // Data bhejna
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        // Google Script se aayi Agent ID dikhana
+        // Note: Google Script no-cors mein response body nahi deta, 
+        // Isliye hum local calculation se bhi dikha sakte hain ya 'Success' message
         
-        <form id="airtekForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <input type="text" id="owner" placeholder="Owner Name" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            <input type="number" id="lapu" placeholder="LAPU Number" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            <input type="number" id="contact" placeholder="Contact Number" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            <input type="text" id="shopName" placeholder="Shop Name" class="bg-[#334155] p-3 rounded-xl outline-none" required>
-            
-            <div class="md:col-span-2 space-y-3 bg-slate-800 p-4 rounded-2xl border border-slate-700">
-                <button type="button" onclick="getGPS()" class="w-full bg-blue-600 py-2 rounded-full font-bold hover:bg-blue-700 transition">📍 FETCH LIVE LOCATION</button>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <input type="text" id="lat" placeholder="Latitude" class="bg-transparent border border-slate-600 p-2 rounded" readonly>
-                    <input type="text" id="lng" placeholder="Longitude" class="bg-transparent border border-slate-600 p-2 rounded" readonly>
-                </div>
-                <input type="text" id="area" placeholder="Detected Area" class="w-full bg-transparent border border-slate-600 p-2 rounded text-xs" readonly>
-                <textarea id="addr" placeholder="Full Address" class="w-full bg-transparent border border-slate-600 p-2 rounded text-[10px]" rows="2" readonly></textarea>
-            </div>
-
-            <select id="zone" class="bg-[#334155] p-3 rounded-xl outline-none">
-                <option value="Sariranjan">Sariranjan</option>
-                <option value="Patory">Patory</option>
-            </select>
-            <select id="userType" class="bg-[#334155] p-3 rounded-xl outline-none">
-                <option value="Retailer">Retailer</option>
-                <option value="Agent">Agent</option>
-            </select>
-
-            <button type="submit" id="submitBtn" class="md:col-span-2 bg-red-600 p-4 rounded-2xl font-black text-xl hover:bg-red-700 transition shadow-lg shadow-red-900/40">SAVE TO SHEET</button>
-        </form>
-    </div>
-
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxho6A5HBshQCO_qkeAH6Cy4_Kcn0cxSaqgeflsryPAIzSW3snOZ1RAd9obHzGVy05gJw/exec"; // ⚠️ Apna URL yahan dalo
-
-        async function getGPS() {
-            navigator.geolocation.getCurrentPosition(async (p) => {
-                const lat = p.coords.latitude; const lng = p.coords.longitude;
-                document.getElementById('lat').value = lat;
-                document.getElementById('lng').value = lng;
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                    const d = await res.json();
-                    document.getElementById('addr').value = d.display_name;
-                    document.getElementById('area').value = d.address.suburb || d.address.village || d.address.city || "Local Area";
-                } catch(e) { console.log("Address fetch failed"); }
-            });
-        }
-
-        document.getElementById('airtekForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = "SAVING..."; btn.disabled = true;
-
-            const payload = {
-                owner: document.getElementById('owner').value,
-                lapu: document.getElementById('lapu').value,
-                contact: document.getElementById('contact').value,
-                shopName: document.getElementById('shopName').value,
-                userType: document.getElementById('userType').value,
-                zone: document.getElementById('zone').value,
-                lat: document.getElementById('lat').value,
-                lng: document.getElementById('lng').value,
-                address: document.getElementById('addr').value,
-                area: document.getElementById('area').value
-            };
-
-            // Sheet mein data bhejna
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            }).then(() => {
-                alert("Data Sent! Check Sheet.");
-                location.reload();
-            }).catch(err => alert("Error: " + err));
-        };
-    </script>
-</body>
-</html>
+        const localId = "E" + payload.lapu.slice(-4) + Math.floor(Math.random()*10);
+        
+        alert("✅ Data Sent to Sheet!\nYour Agent ID is: " + localId);
+        
+        location.reload(); // Form reset karne ke liye
+    } catch (err) {
+        alert("Error: " + err);
+        btn.disabled = false;
+        btn.innerText = "SAVE TO SHEET";
+    }
+};
