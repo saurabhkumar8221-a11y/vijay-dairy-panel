@@ -1,47 +1,41 @@
-document.getElementById('airtekForm').onsubmit = async (e) => {
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxho6A5HBshQCO_qkeAH6Cy4_Kcn0cxSaqgeflsryPAIzSW3snOZ1RAd9obHzGVy05gJw/exec";
+
+  document.getElementById('airtekForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     
-    if(!document.getElementById('lat').value) {
-        alert("Bhai, pehle GPS verify button dabao!");
-        return;
-    }
-
-    btn.innerText = "SAVING DATA...";
-    btn.disabled = true;
-
+    // Yahan payload hai
     const payload = {
-        owner: document.getElementById('owner').value,
-        lapu: document.getElementById('lapu').value,
-        contact: document.getElementById('contact').value,
-        shopName: document.getElementById('shopName').value,
-        userType: document.getElementById('userType').value,
-        zone: document.getElementById('zone').value,
-        lat: document.getElementById('lat').value,
-        lng: document.getElementById('lng').value,
-        address: document.getElementById('addr').value,
-        area: document.getElementById('area').value
+      owner: document.getElementById('owner').value,
+      lapu: document.getElementById('lapu').value,
+      contact: document.getElementById('contact').value,
+      shopName: document.getElementById('shopName').value,
+      userType: document.getElementById('userType').value,
+      zone: document.getElementById('zone').value,
+      lat: document.getElementById('lat').value,
+      lng: document.getElementById('lng').value,
+      address: document.getElementById('addr').value,
+      area: document.getElementById('area').value
     };
 
-    try {
-        // Data bhejna
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
+    btn.innerText = "SAVING..."; btn.disabled = true;
 
-        // Google Script se aayi Agent ID dikhana
-        // Note: Google Script no-cors mein response body nahi deta, 
-        // Isliye hum local calculation se bhi dikha sakte hain ya 'Success' message
-        
-        const localId = "E" + payload.lapu.slice(-4) + Math.floor(Math.random()*10);
-        
-        alert("✅ Data Sent to Sheet!\nYour Agent ID is: " + localId);
-        
-        location.reload(); // Form reset karne ke liye
+    try {
+      // POST Request with mode: 'no-cors' for Google Script
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        body: JSON.stringify(payload)
+      });
+
+      const localId = "E" + payload.lapu.slice(-4) + Math.floor(Math.random()*10);
+      alert("✅ Data Sent Successfully!\nYour Agent ID: " + localId);
+      location.reload();
+
     } catch (err) {
-        alert("Error: " + err);
-        btn.disabled = false;
-        btn.innerText = "SAVE TO SHEET";
+      alert("Error: " + err);
+      btn.disabled = false;
     }
-};
+  };
+</script>
